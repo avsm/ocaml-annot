@@ -1,0 +1,18 @@
+
+<<public types>>=
+type location =
+    { file:     string
+    ; line:     int
+    ; column:   int
+    ; offset:   int
+    }
+
+type t = location * location * string
+@
+
+<<annot.mli>>=
+<<public types>>
+
+<<annot.ml>>=
+<<public types>>
+@

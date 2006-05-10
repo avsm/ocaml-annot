@@ -1,0 +1,34 @@
+
+<<range.mli>>=
+type range = int * int
+type point = int
+type 'a t
+
+val empty:  'a t
+val add:    range -> 'a -> 'a t -> 'a t
+val find:   'a t -> point -> 'a option
+
+<<range.ml>>=
+type range = int * int
+type point = int
+type 'a t  = (int * int * 'a) list
+
+let empty           = []
+let add (lo,hi) x t = (lo,hi,x)::t
+
+let inside point (lo,hi)      = lo <= point && point <= hi
+let (<<) (lo,hi) range        = inside lo range && inside hi range
+
+let min r = function
+    | None                  -> Some r
+    | Some(r') when r << r' -> Some r           
+    | x                     -> x
+
+let find t point ranges = 
+    let rec loop m = function
+    | []                        -> m
+    | r::rs when inside point r -> loop (min r m) rs
+    | r::rs                     -> loop m rs
+    in
+        loop None ranges
+@

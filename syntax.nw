@@ -1,0 +1,108 @@
+
+\section{Scanner and Parser for Annotations}
+
+This file contains the specifications for a scanner (unsing OCamlLex)
+associates an object with attributes, like in the following two lines:
+
+% ------------------------------------------------------------------ 
+\subsection{Parser}
+% ------------------------------------------------------------------ 
+
+<<parser.mly>>=
+%{
+    module A = Annot
+
+    exception Error of string
+    let error fmt = Printf.kprintf (fun msg -> raise (Error msg)) fmt
+    let (@@) f x  = f x
+%}
+<<types>>
+%%
+<<grammar>>
+@
+
+<<types>>=
+%start annotations
+%type <Annot.t list> annotations
+
+%token EOF 
+%token <string> STRING
+%token <int>    INT
+%token <string> ANNOT
+@
+
+<<grammar>>=
+annotations     : annotations annot             {$2 :: $1}
+                | /**/                          {[]      }
+                
+annot           : location location ANNOT       {$1, $2, $3}
+
+location        : STRING INT INT INT            {{ A.file   = $1
+                                                 ; A.line   = $2
+                                                 ; A.column = $4 - $3
+                                                 ; A.offset = $4
+                                                 }}
+@
+
+% ------------------------------------------------------------------ 
+\subsection{Scanner}
+% ------------------------------------------------------------------ 
+
+The scanner splits the input into tokens. Tokens are defined by the
+parser (in [[parser.mli]]).
+
+<<scanner.mli>>=
+val token:          Lexing.lexbuf -> Parser.token  
+
+<<scanner.mll>>=
+{
+
+    module P = Parser   (* tokens are defined here *)
+
+    let get         = Lexing.lexeme
+    let getchar     = Lexing.lexeme_char
+    let strlen      = String.length
+    let pos_start   = Lexing.lexeme_start
+    let pos_end     = Lexing.lexeme_end
+    
+    exception Error of string
+    let error fmt   = Printf.kprintf (fun msg -> raise (Error msg)) fmt
+    let (@@) f x    = f x
+
+}
+@
+
+<<scanner.mll>>=
+let digit           = ['0'-'9']
+let ws              = [' ' '\t' '\r']
+let nl              = '\n'
+@
+
+<<scanner.mll>>=
+rule token = parse
+    eof             { P.EOF }
+  | ws+             { token lexbuf }
+  | nl              { token lexbuf }
+
+  | digit+          { P.INT(int_of_string (get lexbuf)) }
+  | '"' ([^'"']+ as str) '"'{ P.STRING (str)}
+  | "type(\n"       { annot (Buffer.create 80) lexbuf } 
+  | _               { let str    = String.escaped @@ get lexbuf in
+                      let off    = Lexing.lexeme_start lexbuf in
+                        error "illegal character: '%s' at offset %d" str off
+                    }  
+
+and annot buffer = parse
+    eof             { error "unexpected end of file" }
+  | [^ '\n']+       { Buffer.add_string buffer (get lexbuf)
+                    ; annot buffer lexbuf 
+                    } 
+  | nl              { Buffer.add_string buffer (get lexbuf)
+                    ; annot buffer lexbuf 
+                    } 
+  | nl ')'          { P.ANNOT(Buffer.contents buffer)}
+  | _               { let str    = String.escaped @@ get lexbuf in
+                      let off    = Lexing.lexeme_start lexbuf in
+                        error "illegal character: '%s' at offset %d" str off
+                    }  
+@

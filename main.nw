@@ -1,0 +1,90 @@
+
+
+\section{Main Module}
+
+Everything starts at the main module: it parses the command line and
+calls functions that do the actual work. Catching and reporting errors
+to the user is also the main modules' responsibility. The Main module
+has an interface but since [[main]] is called automatically it is not of
+much use.
+
+<<main.mli>>=
+val main: unit -> unit (* executed automatically *)
+@
+
+\subsection{Implementation}
+
+<<main.ml>>=
+exception Usage of string
+
+let error   fmt = Printf.kprintf (fun msg -> raise (Usage msg)) fmt
+let printf      = Printf.printf
+let sprintf     = Printf.sprintf
+let version     = "$Id$"
+let (@@) f x    = f x
+
+let this        = Sys.argv.(0)
+
+let synopsis =
+    [ "usage: "^this^" [options]" 
+    ; ""
+    ; "-h, -help        offer minimal help on stdout"
+    ; "-version         identify version of "^this^" on stdout"
+    ; ""
+    ; "Author: Christian Lindig http://www.st.cs.uni-sb.de/~lindig/"
+    ]
+    
+let usage msg = List.iter prerr_endline (msg :: synopsis)
+let help ()   = List.iter print_endline synopsis
+
+let version () =
+    List.iter print_endline
+    [ this^" version $Id$"
+    ; "(c) 2006 Christian Lindig <lindig@cs.uni-sb.de>"
+    ]
+@
+
+<<main.ml>>=
+let with_file file action =
+    let ic = open_in file in
+    try 
+        let result = action ic in
+        close_in ic; result
+    with
+        x -> close_in ic; raise x
+
+let annotations_from channel = 
+    let lexbuf = Lexing.from_channel channel in
+    try
+        Parser.annotations Scanner.token lexbuf
+    with
+        Parsing.Parse_error -> 
+            error "parse error at offset %d" (Lexing.lexeme_start lexbuf)
+        
+let typeannot line column ic = 
+    let annot  = annotations_from ic in
+    ()
+(*    
+    let ranges = List.fold_left (fun (x,y,a) rs -> Range.add (x,y) a rs) 
+                                Range.empty annot in
+*)                                
+    
+
+let main () =
+    let argv    = Array.to_list Sys.argv in
+    let args    = List.tl argv in
+    let rec parse = function
+        | "-h"               :: [] -> help ()
+        | "-help"            :: [] -> help ()
+        | "-version"         :: [] -> version ()
+        | ["-type"; line;col;file] -> with_file file @@ typeannot line col 
+        | x :: _ -> usage @@ sprintf "error: illegal command line argument %s" x
+        | []     -> usage "error: expected a file name"
+    in              
+        try parse args with Usage msg -> (usage msg; exit 1)
+
+let () = if !Sys.interactive then () else main ()
+@
+
+
+
