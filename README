@@ -53,10 +53,10 @@ for the identifier under the cursor.
 SOURCE CODE
 
 The source code is a literate program for the NoWeb literate programming
-tools and resides in the *.nw file. However, you don't need NoWeb to
-compile and install the Annot.  The configure detects when NoWeb is
-installed otherwises uses Perl script tools/nofake to extract the
-Objective Caml code code from the *.nw files.
+tools and resides in the *.nw file in directory src/. However, you don't
+need NoWeb to compile and install the Annot.  The configure detects when
+NoWeb is installed otherwises uses Perl script tools/nofake to extract
+the Objective Caml code code from the *.nw files.
 
 If you have the NoWeb tool chain installes you can use make to produce
 PDF files from *.nw files by executing "make main.pdf", for example.

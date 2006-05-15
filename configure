@@ -14,7 +14,7 @@ my %opt         = ();                       # optional tools or settings
 # ------------------------------------------------------------------ 
 # sanity check
 
-if (!-d "./tools" || !-f "Makefile" || !-f "README") {
+if (!-d "./tools" || !-f "README") {
     (my $msg = <<EOF) =~ s/^    //gm;
     You should run the ./configure script from the toplevel
     of the distribution.
