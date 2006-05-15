@@ -29,6 +29,7 @@ clean:
 clobber:    clean
 	    rm -f $(NAME).byte $(NAME).opt
 	    rm -f $(NAME).1
+	    rm -f config.mk
 
 install:    $(NAME).$(BINEXT) $(NAME).1 $(BINDIR) $(MAN1DIR)
 	    cp $(NAME).$(BINEXT) $(BINDIR)/$(NAME)
