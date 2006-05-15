@@ -79,12 +79,13 @@ given [[line]] and [[column]] to stdout. We first build an interval map
 and then search it for the given position.
 
 <<main.ml>>=
-let typeannot line column ic = 
+let typeannot newline line column ic = 
     let line, column = int line, int column in
+    let nl           = if newline then "\n" else "" in
     let annots = annotations_from ic in
         match A.find annots (line, column) with
-        | Some s -> print_endline s
-        | None   -> print_endline "no type found"
+        | Some s -> print_string (s ^ nl)
+        | None   -> print_string ("no type found" ^ nl)
 @    
  
 Read annotations from channel [[ic]], build an interval map from it and
@@ -97,12 +98,15 @@ let dump ic = A.dump (fun x -> x) @@ annotations_from ic
 let main () =
     let argv    = Array.to_list Sys.argv in
     let args    = List.tl argv in
+    let newline = ref true in
     let rec parse = function
         | "-h"               :: [] -> help ()
         | "-help"            :: [] -> help ()
         | "-version"         :: [] -> version ()
-        | ["-type"; line;col;file] -> with_file file @@ typeannot line col 
-        | ["-type"; line;col]      -> typeannot line col stdin
+        | "-n"               :: args -> newline := false; parse args
+        | ["-type"; line;col;file] -> with_file file 
+                                        @@ typeannot !newline line col 
+        | ["-type"; line;col]      -> typeannot !newline line col stdin
         | ["-dump"; file]          -> with_file file @@ dump
         | ["-dump"]                -> dump stdin
         | x :: _ -> usage @@ sprintf "error: illegal command line argument %s" x

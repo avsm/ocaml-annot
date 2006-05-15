@@ -10,7 +10,7 @@ OCAMLDEP             := /usr/local/bin/ocamldep
 OCAMLLEX             := /usr/local/bin/ocamllex
 OCAMLYACC            := /usr/local/bin/ocamlyacc
 POD2MAN              := /usr/bin/pod2man
-PREFIX               := /usr/local
+PREFIX               := /Users/lindig
 # optional tools and settings
 LATEX                := /usr/local/teTeX/bin/powerpc-apple-darwin-current/pdflatex
 NOWEAVE              := /usr/local/bin/noweave
