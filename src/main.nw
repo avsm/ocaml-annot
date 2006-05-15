@@ -28,10 +28,11 @@ let this        = Sys.argv.(0)
 let synopsis =
     [ "usage: "^this^" [options]" 
     ; ""
-    ; "-h, -help                        offer minimal help on stdout"
-    ; "-version                         identify version of "^this^" on stdout"
     ; "-type line column [file.annot]   lookup type annotation for position"
     ; "-dump [file.annot]               dump annotations to stdout"
+    ; "-n                               suppress newline afterlast line"
+    ; "-version                         identify version of "^this^" on stdout"
+    ; "-h, -help                        offer minimal help on stdout"
     ; ""
     ; "Author: Christian Lindig http://www.st.cs.uni-sb.de/~lindig/"
     ]
@@ -118,6 +119,7 @@ let main () =
 
 let () = if !Sys.interactive then () else main ()
 @
+
 
 
 
