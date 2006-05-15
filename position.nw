@@ -1,0 +1,29 @@
+
+\section{Position}
+
+Module [[Position]] represents a position in a file as a pair of line
+number and column. An alternative representation would be the byte
+offset from the beginning of a file.
+
+<<position.mli>>=
+type line   = int
+type column = int
+type t      = line * column
+
+val to_string:  t -> string
+val compare:    t -> t -> int
+
+<<position.ml>>=
+type line   = int
+type column = int
+type t      = line * column
+
+let to_string (line,col) = Printf.sprintf "%04d:%04d" line col
+
+let compare (l,c) (l',c') =
+    if      l < l' then -1
+    else if l > l' then 1
+    else if c < c' then -1
+    else if c > c' then 1
+    else 0
+@
