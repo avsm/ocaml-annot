@@ -6,7 +6,7 @@ function! OCamlType()
     let col  = col('.')
     let line = line('.')
     let file = expand("%:p:r")
-    echo system("annot -type " . line . " " . col . " " . file . ".annot")
+    echo system("annot -n -type " . line . " " . col . " " . file . ".annot")
 endfunction    
 map ,t :call OCamlType()<return>
 
