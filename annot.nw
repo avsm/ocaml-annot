@@ -1,18 +1,53 @@
 
-<<public types>>=
-type location =
-    { file:     string
-    ; line:     int
-    ; column:   int
-    ; offset:   int
-    }
+Module [[Position]] represents a position in a file as a pair of line
+number and column. An alternative representation would be the byte
+offset from the beginning of a file.
 
-type t = location * location * string
-@
 
 <<annot.mli>>=
-<<public types>>
+module Position: sig
+    type line   = int
+    type column = int
+    type t      = line * column
+
+    val to_string:  t -> string
+    val compare:    t -> t -> int
+end
+@
+
+Module [[ByPosition]] associates position intervals with data. We use
+this to map intervals to (string) annotations as denoted by type [[t]]
+below.
+
+<<annot.mli>>=
+module ByPosition: Intervalmap.S 
+    with type point = Position.t
+    and  type interval = Position.t * Position.t
+
+type t = string ByPosition.t
+@
+
+% ------------------------------------------------------------------ 
+\subsection{Implementation}
+% ------------------------------------------------------------------ 
 
 <<annot.ml>>=
-<<public types>>
+module Position = struct
+    type line   = int
+    type column = int
+    type t      = line * column
+
+    let to_string (line,col) = Printf.sprintf "%04d:%04d" line col
+
+    let compare (l,c) (l',c') =
+        if      l < l' then -1
+        else if l > l' then 1
+        else if c < c' then -1
+        else if c > c' then 1
+        else 0
+end
+
+module ByPosition = Intervalmap.Make(Position)
+
+type t = string ByPosition.t
 @

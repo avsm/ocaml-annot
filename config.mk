@@ -1,6 +1,6 @@
 # required tools and settings
 BINEXT               := opt
-DATE                 := 20060421
+DATE                 := 20060515
 LIBEXT               := cmxa
 NAME                 := annot
 NOTANGLE             := /usr/local/bin/notangle
@@ -10,7 +10,6 @@ OCAMLDEP             := /usr/local/bin/ocamldep
 OCAMLLEX             := /usr/local/bin/ocamllex
 OCAMLYACC            := /usr/local/bin/ocamlyacc
 POD2MAN              := /usr/bin/pod2man
-POD2TEXT             := /usr/bin/pod2text
 PREFIX               := /usr/local
 # optional tools and settings
 LATEX                := /usr/local/teTeX/bin/powerpc-apple-darwin-current/pdflatex

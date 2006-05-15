@@ -11,8 +11,11 @@ OCAMLC_FLAGS		:= -g -dtypes $(INCLUDES)
 OCAMLOPT_FLAGS		:= -p -dtypes $(INCLUDES)
 OCAMLOPT_FLAGS		:=    -dtypes $(INCLUDES)
 
+BINDIR 			:= $(PREFIX)/bin
+MAN1DIR 		:= $(PREFIX)/man/man1
+
 # -- high-level targets
-.PHONY:	    all doc clean pdf test
+.PHONY:	    all doc clean pdf test install clobber
 
 all:	    load.ml $(NAME).$(BINEXT)
 	    
@@ -25,13 +28,26 @@ clean:
 	    
 clobber:    clean
 	    rm -f $(NAME).byte $(NAME).opt
+	    rm -f $(NAME).1
 
+install:    $(NAME).$(BINEXT) $(NAME).1 $(BINDIR) $(MAN1DIR)
+	    cp $(NAME).$(BINEXT) $(BINDIR)/$(NAME)
+	    cp $(NAME).1 	 $(MAN1DIR)
+
+$(BINBDIR):
+	    mkdir -p $@
+
+$(MAN1DIR):
+	    mkdir -p $@
+
+	    
 # -- important files
 
-ML :=       annot.ml 		\
+ML :=       \
+	    intervalmap.ml 	\
+	    annot.ml 		\
 	    parser.ml	    	\
 	    scanner.ml	    	\
-	    range.ml 		\
 	    main.ml 		\
 	    
 
@@ -94,6 +110,12 @@ load.ml:    $(CMO)
 %.ml:	    %.mll
 	    $(OCAMLLEX) $<
 
+# -- manual page
+
+%.1: 	    %.pod
+	    $(POD2MAN) $< > $@
+
+
 # -- special rules
 
 scanner.mli: syntax.nw
@@ -128,6 +150,12 @@ pdf:	    $(PDF)
 	    echo "    \begin{document}			" >> $@
 	    echo "    \input{$<}			" >> $@
 	    echo "    \end{document}			" >> $@
+
+# -- configure
+
+$(TOP)/config.mk:
+	    echo "Have you run ./configure?"
+	    exit 1
 
 # -- dependencies
 

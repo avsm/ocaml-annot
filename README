@@ -1,0 +1,77 @@
+
+== $Id$ ==
+
+This is the source code for Annot, a tool to lookup annotations for
+Objective Caml source code. The main purpose is to lookup the type
+annotation for a given identifier in an OCaml source file from within an
+editor.  Annot works by taking the line and column of the of identifier
+and looking up the information in an annotations file produced by the
+OCaml compiler:
+
+    $ annot -type 57 5 main.annot
+    string -> (in_channel -> 'a) -> 'a
+
+The code above looks up the type annotation for an indentifier in
+main.ml, at line 57, column 5. The invocation of this command is
+typically bound to a key in an editor rather than invoked explictly in a
+shell.
+
+The OCaml compiler currently only generates type annotations; however,
+in principle other annotations could be looked up as well.  For full
+documentation, please refer to the manual page annot.pod.
+
+INSTALLATION
+
+Annot is implemented in Objective Caml. To compile it from source code,
+try the following:
+
+    ./configure --prefix=/usr/local
+    make
+    make install
+
+The configure script tries to locate all necessary tools and generates a
+file config.mk that is included by the main Makefile. If something goes
+wrong, try running "./configure -v".
+
+USING ANNOT FROM AN EDITOR
+
+To use Annot from Vim, include the follwing code into your ~/.vimrc
+file (also provided in editors/):
+
+    function! OCamlType()
+        let col  = col('.')
+        let line = line('.')
+        let file = expand("%:p:r")
+        echo system("annot -type " . line . " " . col . " " . file . ".annot")
+    endfunction    
+    map ,t :call OCamlType()<return>
+
+The key combination ",t" (without quotes) looks up the type annotation
+for the identifier under the cursor.
+
+
+SOURCE CODE
+
+The source code is a literate program for the NoWeb literate programming
+tools and resides in the *.nw file. However, you don't need NoWeb to
+compile and install the Annot.  The configure detects when NoWeb is
+installed otherwises uses Perl script tools/nofake to extract the
+Objective Caml code code from the *.nw files.
+
+If you have the NoWeb tool chain installes you can use make to produce
+PDF files from *.nw files by executing "make main.pdf", for example.
+
+COPYRIGHT
+
+Please see the manual page annot.pod for the exact copyright. 
+
+AUTHOR AND CONTACT
+
+Christian Lindig
+lindig@cs.uni-sb.de
+http://www.cs.uni-sb.de/~lindig/
+
+
+
+
+

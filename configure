@@ -1,0 +1,212 @@
+#! /usr/bin/perl -w 
+# configuration script for OCaml project
+# run as ./configure
+
+use strict;
+
+my $name        = "annot";
+my $config      = "config.mk";              # results go here
+my $verbose     = 0;                        # verbosity of ./configure
+my $fatal       = 0;                        # fatal-error flag
+my %req         = ();                       # required tools or settings
+my %opt         = ();                       # optional tools or settings
+
+# ------------------------------------------------------------------ 
+# sanity check
+
+if (!-d "./tools" || !-f "Makefile" || !-f "README") {
+    (my $msg = <<EOF) =~ s/^    //gm;
+    You should run the ./configure script from the toplevel
+    of the distribution.
+EOF
+    print $msg;
+    exit(1);
+}
+
+# add ./tools to search path
+my @path = split(/:/,$ENV{PATH});    # $PATH for binaries
+my $pwd;
+chomp($pwd = `pwd`) && push(@path,"$pwd/tools") || die "$!";
+
+# process command line options
+foreach (@ARGV) {
+    if       (/^--?prefix=(.*)$/)             { $req{prefix}=$1     }
+    elsif    (/^--?h(elp)?$/)                 { usage(); exit 0     }  
+    elsif    (/^--?v(verbose)?$/)             { $verbose++;         }  
+    else     { usage(); exit 1 }
+}
+
+# ------------------------------------------------------------------ 
+# find required tools and settings
+
+$req{name}          = $name;     # project name
+$req{prefix}        = $req{prefix} 
+                    || "/usr/local";
+$req{notangle}      =  search("notangle",@path)
+                    || search("nofake",@path);
+$req{ocamlc}        =  search("ocamlc",@path);
+$opt{ocamlopt}      =  search("ocamlopt.opt",@path) 
+                    || search("ocamlopt",@path);
+$req{ocamlyacc}     =  search("ocamlyacc",@path);
+$req{ocamllex}      =  search("ocamllex",@path);
+
+$req{ocamldep}      =  search("ocamldep",@path);
+$req{pod2man}       =  search("pod2man",@path);
+$req{ocaml_version} =  $req{ocamlc} 
+                    && `$req{ocamlc} -v 2>&1` =~ /(\d\.\d\d)/
+                    && $1
+                    || ""; 
+chop($req{date}     =`date +%Y%m%d`) || die "cannot run date(1): $!";
+
+
+# ------------------------------------------------------------------ 
+# find optional tools and settings
+
+$opt{latex}         =  search("pdflatex",@path);
+$opt{noweave}       =  search("noweave",@path);
+
+# ------------------------------------------------------------------
+# report some results
+
+(my $msg = <<EOF) =~ s/^    //gm;
+    Installation
+    ------------------------------------------------------------------
+    Hierachy prefix     $req{prefix}
+    Basename            $req{name}
+    
+    Compiler and tools
+    ------------------------------------------------------------------ 
+    OCaml               $req{ocamlc}
+    OCamlopt            $opt{ocamlopt}
+    OCaml Version       $req{ocaml_version}
+    
+    Literate Programming Tools
+    ------------------------------------------------------------------ 
+    Notangle            $req{notangle}
+    Noweave             $opt{noweave}
+    LaTeX               $opt{latex}
+
+EOF
+print $msg;
+
+# ------------------------------------------------------------------ 
+# verify that no required setting is missing
+
+my @missing = ();
+foreach my $k (keys %req) {
+    push(@missing,$k) unless $req{$k};
+}
+$fatal = $fatal || @missing;
+if (@missing) {
+    (my $msg = <<EOF) =~ s/^    //gm;
+
+    Problems
+    ==================================================================
+    The values for the following important variables could not be 
+    inferred:
+
+    @missing
+
+    Commands were searched along your \$PATH, which currently has the
+    following value: 
+
+    $ENV{PATH}
+    
+    Include the missing programs in your \$PATH and run this script
+    again.
+EOF
+    print $msg;
+}
+# ------------------------------------------------------------------ 
+# check OCaml Version
+
+if ($req{ocaml_version} < 3.08) {
+    (my $msg = <<EOF) =~ s/^    //gm;
+
+    Your OCaml version in $req{ocamlc} is $req{ocaml_version} 
+    but you need OCaml version 3.08 or better.
+EOF
+    print $msg;
+    $fatal=1;
+}
+
+# ------------------------------------------------------------------ 
+# exit if we have any fatal problem so far
+
+if($fatal) {
+    (my $msg = <<EOF) =~ s/^    //gm;
+
+    Configuration failed. Consider runnung ./configure -v for more
+    information. 
+
+    You can also rename config/config.dist to config/config.mk and edit
+    the file manually. 
+EOF
+    exit(1);
+}
+# ------------------------------------------------------------------ 
+# infer some settings
+
+$req{binext}  = $opt{ocamlopt} ? "opt"  : "byte";
+$req{libext}  = $opt{ocamlopt} ? "cmxa" : "cma"; 
+
+# ------------------------------------------------------------------ 
+# write output
+
+open(OUT,'>',$config) || die "$!";
+print OUT "# required tools and settings\n";
+foreach my $key (sort (keys %req)) {
+    (my $k = $key) =~ tr [a-z] [A-Z]; 
+    printf OUT "%-20s := %s\n",$k,$req{$key}; 
+    $verbose && printf  "%-20s := %s\n",$k,$req{$key}; 
+}
+
+print OUT "# optional tools and settings\n";
+foreach my $key (sort (keys %opt)) {
+    (my $k = $key) =~ tr [a-z] [A-Z]; 
+    printf OUT "%-20s := %s\n",$k,$opt{$key}; 
+    $verbose && printf  "%-20s := %s\n",$k,$opt{$key}; 
+}
+close(OUT) || die "cannot close file: $!";
+print  "Configuration successfully written to $config.\n";
+exit(0);
+
+# ------------------------------------------------------------------ 
+# search (file, dir, dir, dir, ..), call as search(file, @dirs) search
+# for file in dirs and return, full path, if found, and "" otherwise.
+#
+
+sub search {
+    my $file = shift (@_);
+    
+    $verbose && printf( "searching for %-20s", $file); 
+    while (my $dir = shift (@_)) {
+        my $x = "$dir/$file";
+        if (-f $x) { 
+            $verbose && print  "found $x\n"; 
+            return $x 
+        }
+    }
+    $verbose && print  "not found\n";
+    return "";
+}
+
+# ------------------------------------------------------------------ 
+# usage
+
+sub usage {
+    (my $msg = <<EOF) =~ s/^    //gm;
+    ./configure [options]
+
+    --prefix=/usr/local     install into the /usr/local hierarchy, which
+                            is also the default
+    -v, --verbose           report what ./configure does
+    -h, --help              this summary
+
+    Various variables can be set at the top of this script, in
+    particular lists of directories that are searched.
+EOF
+    print $msg;
+}
+
+

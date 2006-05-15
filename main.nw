@@ -28,8 +28,10 @@ let this        = Sys.argv.(0)
 let synopsis =
     [ "usage: "^this^" [options]" 
     ; ""
-    ; "-h, -help        offer minimal help on stdout"
-    ; "-version         identify version of "^this^" on stdout"
+    ; "-h, -help                        offer minimal help on stdout"
+    ; "-version                         identify version of "^this^" on stdout"
+    ; "-type line column [file.annot]   lookup type annotation for position"
+    ; "-dump [file.annot]               dump annotations to stdout"
     ; ""
     ; "Author: Christian Lindig http://www.st.cs.uni-sb.de/~lindig/"
     ]
@@ -43,6 +45,14 @@ let version () =
     ; "(c) 2006 Christian Lindig <lindig@cs.uni-sb.de>"
     ]
 @
+
+<<main.ml>>=
+module A = Annot.ByPosition
+@
+
+Operation [[with_file]] opens a file for reading and passes the file
+handle to an action. It takes care of closing the file, even in the case
+of errors.
 
 <<main.ml>>=
 let with_file file action =
@@ -60,16 +70,30 @@ let annotations_from channel =
     with
         Parsing.Parse_error -> 
             error "parse error at offset %d" (Lexing.lexeme_start lexbuf)
-        
-let typeannot line column ic = 
-    let annot  = annotations_from ic in
-    ()
-(*    
-    let ranges = List.fold_left (fun (x,y,a) rs -> Range.add (x,y) a rs) 
-                                Range.empty annot in
-*)                                
-    
 
+let int x   = try int_of_string x with Failure _ -> error "not an int: %s" x
+@
+
+Read type annotation from channel [[ic]] and report the annotation for a
+given [[line]] and [[column]] to stdout. We first build an interval map
+and then search it for the given position.
+
+<<main.ml>>=
+let typeannot line column ic = 
+    let line, column = int line, int column in
+    let annots = annotations_from ic in
+        match A.find annots (line, column) with
+        | Some s -> print_endline s
+        | None   -> print_endline "no type found"
+@    
+ 
+Read annotations from channel [[ic]], build an interval map from it and
+dump it to stdout (for debugging).
+
+<<main.ml>>= 
+let dump ic = A.dump (fun x -> x) @@ annotations_from ic
+        
+ 
 let main () =
     let argv    = Array.to_list Sys.argv in
     let args    = List.tl argv in
@@ -78,10 +102,15 @@ let main () =
         | "-help"            :: [] -> help ()
         | "-version"         :: [] -> version ()
         | ["-type"; line;col;file] -> with_file file @@ typeannot line col 
+        | ["-type"; line;col]      -> typeannot line col stdin
+        | ["-dump"; file]          -> with_file file @@ dump
+        | ["-dump"]                -> dump stdin
         | x :: _ -> usage @@ sprintf "error: illegal command line argument %s" x
-        | []     -> usage "error: expected a file name"
+        | []     -> usage "error: expected an option"
     in              
-        try parse args with Usage msg -> (usage msg; exit 1)
+        try parse args with 
+        |   Usage     msg -> (usage msg; exit 1)
+        |   Sys_error msg -> (print_endline msg; exit 1)
 
 let () = if !Sys.interactive then () else main ()
 @

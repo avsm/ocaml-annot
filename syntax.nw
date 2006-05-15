@@ -1,16 +1,13 @@
 
 \section{Scanner and Parser for Annotations}
 
-This file contains the specifications for a scanner (unsing OCamlLex)
-associates an object with attributes, like in the following two lines:
-
 % ------------------------------------------------------------------ 
 \subsection{Parser}
 % ------------------------------------------------------------------ 
 
 <<parser.mly>>=
 %{
-    module A = Annot
+    module A = Annot.ByPosition
 
     exception Error of string
     let error fmt = Printf.kprintf (fun msg -> raise (Error msg)) fmt
@@ -23,7 +20,7 @@ associates an object with attributes, like in the following two lines:
 
 <<types>>=
 %start annotations
-%type <Annot.t list> annotations
+%type <Annot.t> annotations
 
 %token EOF 
 %token <string> STRING
@@ -32,16 +29,15 @@ associates an object with attributes, like in the following two lines:
 @
 
 <<grammar>>=
-annotations     : annotations annot             {$2 :: $1}
-                | /**/                          {[]      }
+annotations     : annotations annot             { let interval, annot = $2 
+                                                  in A.add interval annot $1 
+                                                } 
+                | /**/                          { A.empty   }
                 
-annot           : location location ANNOT       {$1, $2, $3}
+annot           : location location ANNOT       { ($1,$2), $3 }
 
-location        : STRING INT INT INT            {{ A.file   = $1
-                                                 ; A.line   = $2
-                                                 ; A.column = $4 - $3
-                                                 ; A.offset = $4
-                                                 }}
+location        : STRING INT INT INT            { $2, $4-$3   }
+
 @
 
 % ------------------------------------------------------------------ 

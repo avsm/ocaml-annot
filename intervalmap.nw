@@ -1,0 +1,112 @@
+
+\section{Interval Map}
+
+An interval map associates intervals with data. An interval $[l,h] = \{
+p \med l \le p \le h \}$ is delimited by two \emph{points} $l$ and high
+$h$ and is associated with a datum. A lookup operation finds the
+smallest interval enclosing a point $p$ and returns the datum associated
+with that interval. Intervals may nest: two intervals must be either
+disjoint or one must contain the other.
+
+Interval maps are parameterized over points: a point is a comparable
+type, and an interval is delimited by two points.
+
+<<signatures>>=
+module type POINT = sig
+    type t
+    val compare:    t -> t -> int
+    val to_string:  t -> string
+end
+@
+
+An interval map is polymorphic in the data associated with an interval.
+Function [[add]] builds a map, function [[find]] find the smallest
+interval enclosing a point and returns the associated value, or
+[[None]].
+
+Currently, there is no function to remove intervals from a map.
+
+<<signatures>>=
+module type S = sig
+    type 'a t
+    type point
+    type interval
+
+    val empty: 'a t
+    val add: interval -> 'a -> 'a t -> 'a t
+    val find: 'a t -> point -> 'a option
+    val dump: ('a -> string) -> 'a t -> unit
+end
+
+<<intervalmap.mli>>=
+<<signatures>>
+module Make (P: POINT): S 
+    with type point = P.t
+    and  type interval = P.t * P.t
+@
+
+\subsection{Implementation}
+
+The implementation is simple but inefficient: a map is a list of
+intervals with associated data. The [[find]] operation searches the list
+linearly. More efficient representations exist but don't pat off unless
+we search the same map frequently.
+
+<<intervalmap.ml>>=
+<<signatures>>
+
+module Make (P: POINT) = struct
+    <<Make>>
+end
+
+
+<<Make>>=
+type point = P.t
+type interval = P.t * P.t
+
+type 'a t  = (interval * 'a) list
+
+let empty = []
+let add interval x t = (interval,x) :: t
+@
+
+Operation [[<*]] compares points, whereas operation [[<:]] compares
+intervals. An interval $[l,h]$ is smaller than another one, if both its
+points are inside the other one.
+
+<<Make>>=
+let (<*)  px py = P.compare px py <  0
+let (>*)  px py = P.compare px py >  0
+let (<=*) px py = P.compare px py <= 0
+let lo (l,h)    = l
+let hi (l,h)    = h
+
+let inside point (lo,hi) = lo <=* point && point <=* hi
+let (<:) r1 r2           = inside (lo r1) r2 && inside (hi r1) r2
+@
+
+The [[find]] operation searches for an interval that encloses a given
+point. Once this is found, [[find]] searches to find a smaller interval
+that also includes the point.
+
+<<Make>>=
+let find intervals point =
+    let rec loop result intervals = match result, intervals with
+    | None, []                              -> None
+    | Some(r,x),[]                          -> Some x
+    | None, (r,x)::rs when inside point r   -> loop (Some (r,x)) rs
+    | Some (r',x'), (r,x)::rs 
+        when inside point r && r <: r'      -> loop (Some (r,x)) rs
+    | _, r::rs                              -> loop result rs
+    in
+        loop None intervals
+@
+
+The [[dump]] operation is mostly used for debugging. 
+
+<<Make>>=
+let dump to_string intervals =
+    let interval ((left,right),annot) = Printf.printf "[%s,%s] %s\n" 
+            (P.to_string left) (P.to_string right) (to_string annot)
+    in
+        List.iter interval intervals
