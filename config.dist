@@ -1,0 +1,17 @@
+# required tools and settings
+BINEXT               := opt
+DATE                 := 20060516
+LIBEXT               := cmxa
+NAME                 := annot
+NOTANGLE             := notangle
+OCAML_VERSION        := 3.09
+OCAMLC               := ocamlc
+OCAMLDEP             := ocamldep
+OCAMLLEX             := ocamllex
+OCAMLYACC            := ocamlyacc
+POD2MAN              := pod2man
+PREFIX               := /usr/local
+# optional tools and settings
+LATEX                := pdflatex
+NOWEAVE              := noweave
+OCAMLOPT             := ocamlopt.opt
