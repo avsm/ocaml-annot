@@ -11,9 +11,9 @@ OCaml compiler:
     $ annot -type 57 5 main.annot
     string -> (in_channel -> 'a) -> 'a
 
-The code above looks up the type annotation for an indentifier in
+The code above looks up the type annotation for an identifier in
 main.ml, at line 57, column 5. The invocation of this command is
-typically bound to a key in an editor rather than invoked explictly in a
+typically bound to a key in an editor rather than invoked explicitly in a
 shell.
 
 The OCaml compiler currently only generates type annotations; however,
@@ -35,14 +35,14 @@ wrong, try running "./configure -v".
 
 USING ANNOT FROM AN EDITOR
 
-To use Annot from Vim, include the follwing code into your ~/.vimrc
+To use Annot from Vim, include the following code into your ~/.vimrc
 file (also provided in editors/):
 
     function! OCamlType()
         let col  = col('.')
         let line = line('.')
         let file = expand("%:p:r")
-        echo system("annot -type " . line . " " . col . " " . file . ".annot")
+        echo system("annot -n -type ".line." ".col." ".file.".annot")
     endfunction    
     map ,t :call OCamlType()<return>
 
@@ -55,10 +55,10 @@ SOURCE CODE
 The source code is a literate program for the NoWeb literate programming
 tools and resides in the *.nw file in directory src/. However, you don't
 need NoWeb to compile and install the Annot.  The configure detects when
-NoWeb is installed otherwises uses Perl script tools/nofake to extract
+NoWeb is installed otherwise uses Perl script tools/nofake to extract
 the Objective Caml code code from the *.nw files.
 
-If you have the NoWeb tool chain installes you can use make to produce
+If you have the NoWeb tool chain installs you can use make to produce
 PDF files from *.nw files by executing "make main.pdf", for example.
 
 COPYRIGHT
