@@ -13,12 +13,15 @@ OCaml compiler:
 
 The code above looks up the type annotation for an identifier in
 main.ml, at line 57, column 5. The invocation of this command is
-typically bound to a key in an editor rather than invoked explicitly in a
-shell.
+typically bound to a key in an editor rather than invoked explicitly in
+a shell.  For full documentation, please refer to the manual page
+annot.pod.
 
-The OCaml compiler currently only generates type annotations; however,
-in principle other annotations could be looked up as well.  For full
-documentation, please refer to the manual page annot.pod.
+OCaml 3.09 introduced the -dtypes compiler flag that causes the compiler
+to write annotation files. Hence, invoking compiler runs with -dtypes
+keeps the annotation files up to date. Currently the compiler only
+generates type annotations; however, in principle other annotations
+could be looked up as well.
 
 INSTALLATION
 
