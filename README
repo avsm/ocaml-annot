@@ -52,6 +52,7 @@ file (also provided in editors/):
 The key combination ",t" (without quotes) looks up the type annotation
 for the identifier under the cursor.
 
+Instructions for other editors can be found in the editors/ directory.
 
 SOURCE CODE
 
