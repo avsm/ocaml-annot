@@ -8,7 +8,7 @@ annot -- lookup OCaml annotations
 
 =head1 SYNOPSIS
 
-B<annot> [B<-n>] B<-type> I<line> I<column> [I<file.annot>]
+B<annot> [B<-n>] [B<-r>] B<-type> I<line> I<column> [I<file.annot>]
 
 B<annot> B<-dump> [I<file.annot>]
 
@@ -43,6 +43,11 @@ Dump the annotations read to stdout. This is mostly used for debugging.
 
 Don't print a newline after emitting an annotation to standard output.
 This is sometimes useful when showing the output inside an editor.
+
+=item B<-r>
+
+When emitting an annotation include the source-code range for which the
+annotation is intended. This could be used to highlight it in an editor.
 
 
 =item B<-h>

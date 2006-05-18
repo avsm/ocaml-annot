@@ -21,8 +21,8 @@ end
 
 An interval map is polymorphic in the data associated with an interval.
 Function [[add]] builds a map, function [[find]] find the smallest
-interval enclosing a point and returns the associated value, or
-[[None]].
+interval enclosing a point and returns interval and the associated
+value, or [[None]].
 
 Currently, there is no function to remove intervals from a map.
 
@@ -32,10 +32,10 @@ module type S = sig
     type point
     type interval
 
-    val empty: 'a t
-    val add: interval -> 'a -> 'a t -> 'a t
-    val find: 'a t -> point -> 'a option
-    val dump: ('a -> string) -> 'a t -> unit
+    val empty:  'a t
+    val add:    interval -> 'a -> 'a t -> 'a t
+    val find:   'a t -> point -> (interval * 'a) option
+    val dump:   ('a -> string) -> 'a t -> unit
 end
 
 <<intervalmap.mli>>=
@@ -93,7 +93,7 @@ that also includes the point.
 let find intervals point =
     let rec loop result intervals = match result, intervals with
     | None, []                              -> None
-    | Some(r,x),[]                          -> Some x
+    | Some(r,x),[]                          -> Some (r,x)
     | None, (r,x)::rs when inside point r   -> loop (Some (r,x)) rs
     | Some (r',x'), (r,x)::rs 
         when inside point r && r <: r'      -> loop (Some (r,x)) rs

@@ -26,11 +26,12 @@ let (@@) f x    = f x
 let this        = Sys.argv.(0)
 
 let synopsis =
-    [ "usage: "^this^" [options]" 
+    [ "usage: "^this^" [options] [file.annot]" 
     ; ""
-    ; "-type line column [file.annot]   lookup type annotation for position"
-    ; "-dump [file.annot]               dump annotations to stdout"
-    ; "-n                               suppress newline afterlast line"
+    ; "-type line column                lookup type annotation for position"
+    ; "-dump                            dump annotations to stdout"
+    ; "-n                               suppress newline after last line"
+    ; "-r                               include range for annotation"
     ; "-version                         identify version of "^this^" on stdout"
     ; "-h, -help                        offer minimal help on stdout"
     ; ""
@@ -75,18 +76,35 @@ let annotations_from channel =
 let int x   = try int_of_string x with Failure _ -> error "not an int: %s" x
 @
 
+Options that control the format when emitting annotations.
+
+<<main.ml>>=
+type options =
+    { mutable newline:  bool   (* emit newline after annotation *)
+    ; mutable range:    bool     (* include range in type annotation *)
+    }
+    
+let options = 
+    { newline   =   true
+    ; range     =   false
+    }
+@
+
 Read type annotation from channel [[ic]] and report the annotation for a
 given [[line]] and [[column]] to stdout. We first build an interval map
 and then search it for the given position.
 
 <<main.ml>>=
-let typeannot newline line column ic = 
+let typeannot options line column ic = 
     let line, column = int line, int column in
-    let nl           = if newline then "\n" else "" in
+    let nl           = if options.newline then "\n" else "" in
+    let range ((l,c),(l',c')) = match options.range with
+        | false -> ""
+        | true  -> Printf.sprintf "%d:%d-%d:%d " l c l' c' in 
     let annots = annotations_from ic in
         match A.find annots (line, column) with
-        | Some s -> print_string (s ^ nl)
-        | None   -> print_string ("no type found" ^ nl)
+        | Some (r,s) -> print_string (range r ^ s ^ nl)
+        | None       -> print_string ("no type found" ^ nl)
 @    
  
 Read annotations from channel [[ic]], build an interval map from it and
@@ -94,20 +112,19 @@ dump it to stdout (for debugging).
 
 <<main.ml>>= 
 let dump ic = A.dump (fun x -> x) @@ annotations_from ic
-        
- 
+
 let main () =
     let argv    = Array.to_list Sys.argv in
     let args    = List.tl argv in
-    let newline = ref true in
     let rec parse = function
         | "-h"               :: [] -> help ()
         | "-help"            :: [] -> help ()
         | "-version"         :: [] -> version ()
-        | "-n"               :: args -> newline := false; parse args
+        | "-n"               :: args -> options.newline <- false; parse args
+        | "-r"               :: args -> options.range   <- true;  parse args
         | ["-type"; line;col;file] -> with_file file 
-                                        @@ typeannot !newline line col 
-        | ["-type"; line;col]      -> typeannot !newline line col stdin
+                                        @@ typeannot options line col 
+        | ["-type"; line;col]      -> typeannot options line col stdin
         | ["-dump"; file]          -> with_file file @@ dump
         | ["-dump"]                -> dump stdin
         | x :: _ -> usage @@ sprintf "error: illegal command line argument %s" x

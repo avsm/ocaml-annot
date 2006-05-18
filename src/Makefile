@@ -35,7 +35,7 @@ install:    $(NAME).$(BINEXT) $(NAME).1 $(BINDIR) $(MAN1DIR)
 	    cp $(NAME).$(BINEXT) $(BINDIR)/$(NAME)
 	    cp $(NAME).1 	 $(MAN1DIR)
 
-$(BINBDIR):
+$(BINDIR):
 	    mkdir -p $@
 
 $(MAN1DIR):
