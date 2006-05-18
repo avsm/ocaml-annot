@@ -4,5 +4,6 @@ Configuration for TextMate provided by Bruno De Fraine
 Configure the following as a command for the Ocaml scope (source.ocaml),
 no input, output as a tool tip:
 
-exec annot -n -type $TM_LINE_NUMBER $((TM_LINE_INDEX+1)) "${TM_FILEPATH%.*}.annot"
+exec annot -n -type $TM_LINE_NUMBER $TM_LINE_INDEX "${TM_FILEPATH%.*}.annot"
+
 
