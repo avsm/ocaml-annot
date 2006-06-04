@@ -62,7 +62,7 @@ chop($req{date}     =`date +%Y%m%d`) || die "cannot run date(1): $!";
 # ------------------------------------------------------------------ 
 # find optional tools and settings
 
-$opt{latex}         =  search("pdflatex",@path);
+$opt{pdflatex}      =  search("pdflatex",@path);
 $opt{noweave}       =  search("noweave",@path);
 
 # ------------------------------------------------------------------

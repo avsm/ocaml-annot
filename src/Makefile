@@ -57,7 +57,7 @@ CMO :=      $(patsubst %.ml, %.cmo, $(ML))
 CMX :=      $(patsubst %.ml, %.cmx, $(ML))
 OBJ :=      $(patsubst %.ml, %.o  , $(ML))
 
-TEX :=      annot.tex intervalmap.tex location.tex main.tex \
+TEX :=      annot.tex intervalmap.tex main.tex \
 	    position.tex syntax.tex
 INC :=      $(patsubst %.tex, %.inc, $(TEX))
 PDF :=      $(patsubst %.tex, %.pdf, $(TEX))
@@ -136,7 +136,7 @@ RERUN =     Rerun (LaTeX|to get cross-references right)
 pdf:	    $(PDF)
 
 %.pdf:	%.tex 
-	    $(LATEX) $<
+	    $(PDFLATEX) $<
 	    if egrep -s '$(RERUN)' $*.log ;then $(PDFLATEX) $<; fi
 	    if egrep -s '$(RERUN)' $*.log ;then $(PDFLATEX) $<; fi
 
