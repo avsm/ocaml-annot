@@ -20,7 +20,7 @@ B<annot> B<-version>
 
 B<Annot> looks up annotations for identifiers in an OCaml source file.
 Such annotations are produced by ocaml(1) and stored in *.annot files,
-wich is either read from standard input, or from I<file.annot>.
+which is either read from standard input, or from I<file.annot>.
 Currently, only the lookup of type annotations is supported. For lookup
 of an annotation, the identifier's source code position as I<line> and
 I<column> is passed to B<annot>. It is typically invoked from an editor
