@@ -25,6 +25,7 @@ clean:
 	    rm -f *.mll *.mly
 	    rm -f DEPEND
 	    rm -f load.ml *.annot
+	    rm -f pod2*
 	    
 clobber:    clean
 	    rm -f $(NAME).byte $(NAME).opt
