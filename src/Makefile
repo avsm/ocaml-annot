@@ -57,9 +57,10 @@ CMO :=      $(patsubst %.ml, %.cmo, $(ML))
 CMX :=      $(patsubst %.ml, %.cmx, $(ML))
 OBJ :=      $(patsubst %.ml, %.o  , $(ML))
 
-TEX :=      $(patsubst %.ml, %.tex, $(ML))
-INC :=      $(patsubst %.ml, %.inc, $(ML))
-PDF :=      $(patsubst %.ml, %.pdf, $(ML))
+TEX :=      annot.tex intervalmap.tex location.tex main.tex \
+	    position.tex syntax.tex
+INC :=      $(patsubst %.tex, %.inc, $(TEX))
+PDF :=      $(patsubst %.tex, %.pdf, $(TEX))
 
 # -- 
 

@@ -2,7 +2,7 @@
 \section{Interval Map}
 
 An interval map associates intervals with data. An interval $[l,h] = \{
-p \med l \le p \le h \}$ is delimited by two \emph{points} $l$ and high
+p \mid l \le p \le h \}$ is delimited by two \emph{points} $l$ and high
 $h$ and is associated with a datum. A lookup operation finds the
 smallest interval enclosing a point $p$ and returns the datum associated
 with that interval. Intervals may nest: two intervals must be either
