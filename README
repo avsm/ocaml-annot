@@ -4,7 +4,7 @@
 This is the source code for Annot, a tool to lookup annotations for
 Objective Caml source code. The main purpose is to lookup the type
 annotation for a given identifier in an OCaml source file from within an
-editor.  Annot works by taking the line and column of the of identifier
+editor.  Annot works by taking the line and column of the identifier
 and looking up the information in an annotations file produced by the
 OCaml compiler:
 
@@ -77,6 +77,7 @@ AUTHOR AND CONTACT
 Christian Lindig
 lindig@cs.uni-sb.de
 http://www.cs.uni-sb.de/~lindig/
+
 
 
 
