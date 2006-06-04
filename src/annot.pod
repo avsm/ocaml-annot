@@ -68,12 +68,8 @@ L<http://www.st.cs.uni-sb.de/~lindig/>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2006 Christian Lindig <lindig@eecs.harvard.edu>. All
+Copyright (c) 2006 Christian Lindig <lindig@cs.uni-sb.de>. All
 rights reserved.
-
-Cflaws is implemented in Objective Caml L<http://caml.inria.fr> and uses
-the CIL library which is copyright by George Necula
-<necula@cs.berkeley.edu> et al. L<http://manju.cs.berkeley.edu/cil/>.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
