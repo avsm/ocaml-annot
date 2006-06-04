@@ -64,6 +64,9 @@ the Objective Caml code code from the *.nw files.
 
 If you have the NoWeb tool chain installs you can use make to produce
 PDF files from *.nw files by executing "make main.pdf", for example.
+Note that the Nofake tool that comes as part of the Annot source code is
+not enough to build the PDF documentation. For this you need the real
+NoWeb tools. These are available on Debian as package "nowebm".
 
 COPYRIGHT
 
