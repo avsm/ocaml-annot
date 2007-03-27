@@ -26,6 +26,7 @@ clean:
 	    rm -f DEPEND
 	    rm -f load.ml *.annot
 	    rm -f pod2*
+	    rm -f test.out
 	    
 clobber:    clean
 	    rm -f $(NAME).byte $(NAME).opt
@@ -35,6 +36,14 @@ clobber:    clean
 install:    $(NAME).$(BINEXT) $(NAME).1 $(BINDIR) $(MAN1DIR)
 	    cp $(NAME).$(BINEXT) $(BINDIR)/$(NAME)
 	    cp $(NAME).1 	 $(MAN1DIR)
+
+
+test:	    test.annot test.in
+	    rm -f test.out
+	    while read LINE COL; do \
+		./$(NAME).$(BINEXT) -type $$LINE $$COL test.annot >> test.out;\
+	    done < test.in
+	    diff test.ref test.out
 
 $(BINDIR):
 	    mkdir -p $@
