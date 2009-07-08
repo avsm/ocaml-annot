@@ -25,16 +25,24 @@
 %token EOF 
 %token <string> STRING
 %token <int>    INT
-%token <string> ANNOT
+%token <string> ANNOT IDENT CALL
 @
 
 <<grammar>>=
-annotations     : annotations annot             { let interval, annot = $2 
-                                                  in A.add interval annot $1 
-                                                } 
+annotations     : annotations annot             { let interval, annots = $2 in
+                                                  List.fold_right (A.add interval) annots $1
+                                                }
                 | /**/                          { A.empty   }
                 
-annot           : location location ANNOT       { ($1,$2), $3 }
+annot           : location location data        { ($1,$2), $3 }
+
+data            : ANNOT data                    { $1 :: $2 }
+                | ANNOT                         { [$1] }
+                | IDENT data                    { $2 }
+                | IDENT                         { [] }
+                | CALL data                     { $2 }
+                | CALL                          { [] }
+;
 
 location        : STRING INT INT INT            { $2, $4-$3   }
 
@@ -82,21 +90,27 @@ rule token = parse
 
   | digit+          { P.INT(int_of_string (get lexbuf)) }
   | '"' ([^'"']+ as str) '"'{ P.STRING (str)}
-  | "type(\n"       { annot (Buffer.create 80) lexbuf } 
+  | "type(\n"       { annot `Type (Buffer.create 80) lexbuf } 
+  | "ident(\n"      { annot `Ident (Buffer.create 80) lexbuf } 
+  | "call(\n"       { annot `Call (Buffer.create 80) lexbuf } 
   | _               { let str    = String.escaped @@ get lexbuf in
                       let off    = Lexing.lexeme_start lexbuf in
                         error "illegal character: '%s' at offset %d" str off
                     }  
 
-and annot buffer = parse
+and annot mode buffer = parse
     eof             { error "unexpected end of file" }
   | [^ '\n']+       { Buffer.add_string buffer (get lexbuf)
-                    ; annot buffer lexbuf 
+                    ; annot mode buffer lexbuf 
                     } 
   | nl              { Buffer.add_string buffer (get lexbuf)
-                    ; annot buffer lexbuf 
+                    ; annot mode buffer lexbuf 
                     } 
-  | nl ')'          { P.ANNOT(Buffer.contents buffer)}
+  | nl ')'          { match mode with
+                      |`Type -> P.ANNOT(Buffer.contents buffer)
+                      |`Ident -> P.IDENT(Buffer.contents buffer)
+                      |`Call -> P.CALL(Buffer.contents buffer)
+                    }
   | _               { let str    = String.escaped @@ get lexbuf in
                       let off    = Lexing.lexeme_start lexbuf in
                         error "illegal character: '%s' at offset %d" str off
