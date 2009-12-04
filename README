@@ -1,5 +1,5 @@
 
-== $Id$ ==
+== Annot 0.9.0 ==
 
 This is the source code for Annot, a tool to lookup annotations for
 Objective Caml source code. The main purpose is to lookup the type
@@ -36,7 +36,7 @@ The configure script tries to locate all necessary tools and generates a
 file config.mk that is included by the main Makefile. If something goes
 wrong, try running "./configure -v".
 
-The latest OCaml version that I have used for tests is OCaml 3.10 beta.
+The latest tested version is OCaml 3.11.0 and 3.11.1.
 
 USING ANNOT FROM AN EDITOR
 
@@ -76,12 +76,11 @@ Please see the manual page annot.pod for the exact copyright.
 
 AUTHOR AND CONTACT
 
-Christian Lindig
+Anil Madhavapeddy
+anil@recoil.org
+http://anil.recoil.org
+
+Christian Lindig (original author)
 lindig@cs.uni-sb.de
 http://www.cs.uni-sb.de/~lindig/
-
-
-
-
-
 

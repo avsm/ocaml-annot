@@ -20,7 +20,7 @@ exception Usage of string
 let error   fmt = Printf.kprintf (fun msg -> raise (Usage msg)) fmt
 let printf      = Printf.printf
 let sprintf     = Printf.sprintf
-let version     = "$Id$"
+let version     = "0.9.0"
 let (@@) f x    = f x
 
 let this        = Sys.argv.(0)
@@ -35,6 +35,7 @@ let synopsis =
     ; "-version                         identify version of "^this^" on stdout"
     ; "-h, -help                        offer minimal help on stdout"
     ; ""
+    ; "Maintainer: Anil Madhavapedddy http://anil.recoil.org/"
     ; "Author: Christian Lindig http://www.st.cs.uni-sb.de/~lindig/"
     ]
     
@@ -43,9 +44,7 @@ let help ()   = List.iter print_endline synopsis
 
 let version () =
     List.iter print_endline
-    [ this^" version $Id$"
-    ; "(c) 2006 Christian Lindig <lindig@cs.uni-sb.de>"
-    ]
+    [ this^" version " ^ version ]
 @
 
 <<main.ml>>=
