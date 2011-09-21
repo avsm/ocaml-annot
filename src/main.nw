@@ -56,7 +56,37 @@ handle to an action. It takes care of closing the file, even in the case
 of errors.
 
 <<main.ml>>=
+let log = open_out "log"
+
+let find_file file =
+  let (/) = Filename.concat in
+  let file = Filename.basename file in
+  let prefix = ref (Filename.dirname file) in
+  let suffix = ref "" in
+  let result = ref None in
+  let backends = [ ""; "unix-socket"; "unix-direct"; "node"; "xen" ] in
+  while !result = None do
+    List.iter (fun backend ->
+      if !prefix = "/" then
+        raise Not_found; 
+      let f = !prefix / "_build" / backend / !suffix / file in
+      output_string log f;
+      output_string log "\n";
+      flush log;
+      if Sys.file_exists f then
+        result := Some f;
+      prefix := Filename.dirname !prefix;
+      suffix := (Filename.basename !prefix) / !suffix;
+    )  backends
+  done;
+  match !result with
+    | Some r -> r
+    | None   -> raise Not_found
+
 let with_file file action =
+    let file =
+      try find_file file
+      with Not_found -> print_string ("Cannot find " ^ file); exit 1 in
     let ic = open_in file in
     try 
         let result = action ic in
