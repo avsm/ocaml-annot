@@ -80,16 +80,16 @@ obj:	$(OBJ)
 
 # --
 
-LIBCMO :=	
-LIBCMX :=	
+LIBCMO := 
+LIBCMX :=
 
 # -- binaries
 
-$(NAME).byte:	$(CMO) $(LIBCMO)
-		$(OCAMLC) $(OCAMLC_FLAGS) -o $@ $(LIBCMO) $(CMO) 
+$(NAME).byte:	$(CMO) $(LIBCMO) custom_unix_stubs.c
+		$(OCAMLC) $(OCAMLC_FLAGS) custom_unix_stubs.c str.cma -o $@ $(LIBCMO) $(CMO) 
 
-$(NAME).opt:	$(CMX) $(LIBCMX)
-		$(OCAMLOPT) $(OCAMLOPT_FLAGS) -o $@ $(LIBCMX) $(CMX) 
+$(NAME).opt:	$(CMX) $(LIBCMX) custom_unix_stubs.c
+		$(OCAMLOPT) $(OCAMLOPT_FLAGS) custom_unix_stubs.c str.cmxa -o $@ $(LIBCMX) $(CMX) 
 
 # -- debugging support
 
