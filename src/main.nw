@@ -20,7 +20,7 @@ exception Usage of string
 let error   fmt = Printf.kprintf (fun msg -> raise (Usage msg)) fmt
 let printf      = Printf.printf
 let sprintf     = Printf.sprintf
-let version     = "0.9.1"
+let version     = "1.0.0"
 let (@@) f x    = f x
 
 let this        = Sys.argv.(0)
