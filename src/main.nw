@@ -84,7 +84,7 @@ let find_file file =
 let with_file file action =
     let file =
       try find_file file
-      with Not_found -> print_string ("Cannot find " ^ file); exit 1 in
+      with Not_found -> file in (* being clever didn't work, try being stupid *)
     let ic = open_in file in
     try 
         let result = action ic in
