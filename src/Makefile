@@ -99,10 +99,10 @@ load.ml:    $(CMO)
 # -- rules
 
 %.ml:       %.nw
-	    $(NOTANGLE) '-L# %L "%F"%N' -R$@ $< > $@
+	    $(NOTANGLE) -R$@ $< > $@
 
 %.mli:      %.nw
-	    $(NOTANGLE) '-L# %L "%F"%N' -R$@ $< > $@
+	    $(NOTANGLE) -R$@ $< > $@
 
 %.sig:	    %.ml
 	    $(OCAMLC) $(OCAMLC_FLAGS) -c -i $< > $@
@@ -131,13 +131,13 @@ load.ml:    $(CMO)
 # -- special rules
 
 scanner.mli: syntax.nw
-	    $(NOTANGLE) '-L# %L "%F"%N' -R$@ $< > $@
+	    $(NOTANGLE) -R$@ $< > $@
 
 scanner.mll: syntax.nw
-	    $(NOTANGLE) '-L# %L "%F"%N' -R$@ $< > $@
+	    $(NOTANGLE) -R$@ $< > $@
 
 parser.mly: syntax.nw
-	    $(NOTANGLE) '-L# %L "%F"%N' -R$@ $< > $@
+	    $(NOTANGLE) -R$@ $< > $@
 
 # -- documentation
 
